@@ -1,0 +1,99 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "EcoAir CRM Intelligence",
+  "description": "Client relationship and account intelligence engine. Tracks property management companies, building accounts, contract status, service history, renewal timelines, and relationship health.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite"]
+  },
+  "actions": [
+    {
+      "id": "account_summary",
+      "name": "Get Account Summary",
+      "description": "Returns client/building account details, contract status, service history, and relationship health.",
+      "inputs": {
+        "type": "object",
+        "required": ["account_name"],
+        "properties": {
+          "account_name": { "type": "string" },
+          "include_service_history": { "type": "boolean", "default": false }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "account_name": { "type": "string" },
+          "account_type": { "type": "string" },
+          "contract_status": { "type": "string" },
+          "annual_revenue": { "type": "number" },
+          "last_service_date": { "type": "string" },
+          "renewal_date": { "type": "string" },
+          "relationship_health": { "type": "string" },
+          "key_contact": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "top_accounts",
+      "name": "List Top Accounts",
+      "description": "Returns ranked list of accounts by revenue, with renewal dates and health status.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "top_n": { "type": "integer", "default": 10 },
+          "filter_status": { "type": "string", "enum": ["all", "at_risk", "renewal_due", "healthy"] }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "top_accounts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "rank": { "type": "integer" },
+                "account": { "type": "string" },
+                "annual_revenue": { "type": "number" },
+                "renewal_date": { "type": "string" },
+                "health": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "contract_renewals",
+      "name": "Contract Renewals Due",
+      "description": "Shows contracts due for renewal in next 30/60/90 days with contact info.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "days_ahead": { "type": "integer", "enum": [30, 60, 90], "default": 30 }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "renewals_due": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "account": { "type": "string" },
+                "renewal_date": { "type": "string" },
+                "days_until_renewal": { "type": "integer" },
+                "current_contract_value": { "type": "number" },
+                "primary_contact": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

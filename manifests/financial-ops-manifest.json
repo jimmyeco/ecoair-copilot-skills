@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "EcoAir Financial Ops",
+  "description": "Financial operations intelligence engine. Tracks revenue, labor costs, job profitability, technician utilization, receivables aging, and margin analysis at job, technician, and company level.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite"]
+  },
+  "actions": [
+    {
+      "id": "daily_revenue_summary",
+      "name": "Daily Revenue Summary",
+      "description": "Returns today's revenue, jobs completed, margin %, and key metrics. Compares to daily target.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "total_revenue": { "type": "number" },
+          "jobs_completed": { "type": "integer" },
+          "average_job_value": { "type": "number" },
+          "margin_percentage": { "type": "number" },
+          "target_daily_revenue": { "type": "number" },
+          "variance_from_target": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "job_profitability",
+      "name": "Analyze Job Profitability",
+      "description": "Returns profit margin and cost breakdown for a specific job (labor, parts, overhead).",
+      "inputs": {
+        "type": "object",
+        "required": ["job_id"],
+        "properties": {
+          "job_id": { "type": "string" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "job_revenue": { "type": "number" },
+          "labor_cost": { "type": "number" },
+          "parts_cost": { "type": "number" },
+          "overhead_allocation": { "type": "number" },
+          "net_profit": { "type": "number" },
+          "margin_percentage": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "receivables_aging",
+      "name": "Receivables Aging Report",
+      "description": "Shows outstanding invoices by age (0-30, 30-60, 60+ days) and total amount due.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "include_details": { "type": "boolean", "default": false }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "current_30_days": { "type": "number" },
+          "30_to_60_days": { "type": "number" },
+          "60_plus_days": { "type": "number" },
+          "total_outstanding": { "type": "number" },
+          "invoices_60_plus": { "type": "array" }
+        }
+      }
+    },
+    {
+      "id": "tech_utilization",
+      "name": "Technician Utilization Report",
+      "description": "Shows revenue per technician, labor efficiency, and utilization rate.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "time_period": { "type": "string", "enum": ["day", "week", "month"], "default": "week" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "technician_metrics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "technician": { "type": "string" },
+                "revenue_generated": { "type": "number" },
+                "labor_hours": { "type": "number" },
+                "revenue_per_hour": { "type": "number" },
+                "utilization_rate": { "type": "number" },
+                "jobs_completed": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

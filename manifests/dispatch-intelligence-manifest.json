@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "Dispatch Intelligence",
+  "description": "EcoAir field operations optimizer. Routes service calls to optimal technicians based on skills, availability, location, and priority. Provides instant capacity analysis, schedule conflict detection, and dispatch recommendations.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Calendars.ReadWrite", "Mail.ReadWrite"]
+  },
+  "actions": [
+    {
+      "id": "optimal_tech_assignment",
+      "name": "Assign Technician to Service Call",
+      "description": "Recommends optimal technician for a service call based on skills (PTAC/WSHP/RTU), location, availability, and workload.",
+      "inputs": {
+        "type": "object",
+        "required": ["service_call_id", "job_type"],
+        "properties": {
+          "service_call_id": {
+            "type": "string",
+            "description": "EcoAir service call ID"
+          },
+          "job_type": {
+            "type": "string",
+            "enum": ["PTAC_Service", "WSHP_Install", "RTU_Maintenance", "Diagnostic", "Emergency"],
+            "description": "Type of HVAC work required"
+          },
+          "location": {
+            "type": "string",
+            "description": "Job location (Manhattan/Brooklyn/Queens)"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["Emergency", "High", "Medium", "Low"],
+            "default": "Medium"
+          },
+          "preferred_techs": {
+            "type": "array",
+            "description": "List of preferred technician names"
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "recommended_technician": { "type": "string" },
+          "estimated_arrival_time": { "type": "string" },
+          "current_workload": { "type": "string" },
+          "location_distance_miles": { "type": "number" },
+          "confidence_score": { "type": "number", "minimum": 0, "maximum": 100 },
+          "alternative_technicians": { "type": "array" }
+        }
+      }
+    },
+    {
+      "id": "capacity_analysis",
+      "name": "Check Daily Dispatch Capacity",
+      "description": "Analyzes current technician workload, available capacity, and scheduling conflicts for today or specified date.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date to analyze (default: today)"
+          },
+          "show_details": {
+            "type": "boolean",
+            "description": "Include per-technician breakdown",
+            "default": true
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "total_calls_scheduled": { "type": "integer" },
+          "available_capacity": { "type": "integer" },
+          "technician_utilization": { "type": "array" },
+          "scheduling_conflicts": { "type": "array" },
+          "idle_technicians": { "type": "array" },
+          "recommendation": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

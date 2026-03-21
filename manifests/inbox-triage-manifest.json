@@ -1,0 +1,96 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "Inbox Triage & Reply Pilot",
+  "description": "Email triage engine. Processes inboxes into priority queues, identifies action items, groups by urgency, and drafts crisp replies in user's voice without losing context.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite", "Mail.Send"]
+  },
+  "actions": [
+    {
+      "id": "triage_inbox",
+      "name": "Triage Inbox",
+      "description": "Processes unread emails, categorizes by priority (urgent/important/routine), extracts action items, and groups by sender/topic.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "inbox_folder": { "type": "string", "default": "Inbox" },
+          "include_flagged": { "type": "boolean", "default": true },
+          "max_emails": { "type": "integer", "default": 50 }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "urgent": {
+            "type": "array",
+            "description": "Emails requiring immediate action"
+          },
+          "important": {
+            "type": "array",
+            "description": "Important but not urgent"
+          },
+          "routine": {
+            "type": "array",
+            "description": "Informational or low priority"
+          },
+          "action_items": {
+            "type": "array",
+            "description": "Extracted tasks with owners and deadlines"
+          },
+          "total_processed": { "type": "integer" }
+        }
+      }
+    },
+    {
+      "id": "draft_replies",
+      "name": "Draft Email Replies",
+      "description": "Generates professional reply drafts for emails in user's voice, maintaining context and tone.",
+      "inputs": {
+        "type": "object",
+        "required": ["email_id"],
+        "properties": {
+          "email_id": { "type": "string" },
+          "tone": { "type": "string", "enum": ["professional", "casual", "urgent"], "default": "professional" },
+          "include_context": { "type": "boolean", "default": true }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "draft_subject": { "type": "string" },
+          "draft_body": { "type": "string" },
+          "suggested_actions": { "type": "array" },
+          "confidence_score": { "type": "number" }
+        }
+      }
+    },
+    {
+      "id": "send_email",
+      "name": "Send Email",
+      "description": "Sends drafted or approved email on behalf of user.",
+      "inputs": {
+        "type": "object",
+        "required": ["recipient", "subject", "body"],
+        "properties": {
+          "recipient": { "type": "string" },
+          "subject": { "type": "string" },
+          "body": { "type": "string" },
+          "cc": { "type": "array" },
+          "bcc": { "type": "array" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "send_status": { "type": "string" },
+          "message_id": { "type": "string" },
+          "sent_timestamp": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

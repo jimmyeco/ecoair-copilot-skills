@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "OneDrive Dedup Organizer",
+  "description": "Eliminates duplicate files across OneDrive folder structure. Consolidates all duplicates into root /duplicates/ folder, preserves originals, and generates text/JSON/CSV summaries with comprehensive audit reports.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Files.ReadWrite.All"]
+  },
+  "actions": [
+    {
+      "id": "scan_and_deduplicate",
+      "name": "Scan & Consolidate OneDrive Duplicates",
+      "description": "Recursively scans entire OneDrive folder structure, identifies duplicate files by content hash, moves duplicates to consolidated /duplicates/ folder, generates inventory summaries (text/JSON/CSV), and creates comprehensive audit report.",
+      "inputs": {
+        "type": "object",
+        "required": ["access_token", "root_folder_id"],
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "OAuth access token with Files.ReadWrite.All scope"
+          },
+          "root_folder_id": {
+            "type": "string",
+            "description": "OneDrive root folder ID (e.g., 'root' or specific folder ID)"
+          },
+          "approval_mode": {
+            "type": "string",
+            "enum": ["interactive", "auto"],
+            "description": "Interactive: ask user before each phase. Auto: execute with minimal prompts.",
+            "default": "interactive"
+          },
+          "batch_size": {
+            "type": "integer",
+            "description": "Files to process per batch (default: 50, increase for large folders)",
+            "default": 50
+          },
+          "log_level": {
+            "type": "string",
+            "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+            "description": "Logging verbosity",
+            "default": "INFO"
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "execution_status": {
+            "type": "string",
+            "description": "success, failed, partial"
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "total_files_scanned": { "type": "integer" },
+              "total_duplicates_found": { "type": "integer" },
+              "total_duplicate_size_bytes": { "type": "integer" },
+              "duplicates_moved": { "type": "integer" },
+              "move_success_rate": { "type": "number" },
+              "execution_time_seconds": { "type": "number" }
+            }
+          },
+          "audit_report_url": {
+            "type": "string",
+            "description": "URL to DEDUPLICATION_AUDIT_REPORT.json in OneDrive"
+          },
+          "duplicates_folder_location": {
+            "type": "string",
+            "description": "OneDrive path to consolidated duplicates folder"
+          },
+          "errors": {
+            "type": "array",
+            "description": "List of errors encountered during execution"
+          }
+        }
+      },
+      "rateLimit": {
+        "maxCalls": 1,
+        "timePeriodSeconds": 3600
+      }
+    }
+  ]
+}

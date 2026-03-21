@@ -1,0 +1,123 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "EcoAir Doc Generator",
+  "description": "Professional business document generator. Creates estimates, proposals, service reports, warranty letters, contracts, and customer correspondence as polished .docx/.pdf files ready for delivery.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite", "Files.ReadWrite"]
+  },
+  "actions": [
+    {
+      "id": "generate_estimate",
+      "name": "Generate Service Estimate",
+      "description": "Creates professional estimate/quote from job details, pricing, and scope of work.",
+      "inputs": {
+        "type": "object",
+        "required": ["customer_name", "scope_of_work", "parts_cost", "labor_hours"],
+        "properties": {
+          "customer_name": { "type": "string" },
+          "building_address": { "type": "string" },
+          "contact_email": { "type": "string" },
+          "scope_of_work": { "type": "string" },
+          "equipment_type": { "type": "string", "enum": ["PTAC", "WSHP", "RTU", "Other"] },
+          "parts_list": { "type": "array" },
+          "parts_cost": { "type": "number" },
+          "labor_hours": { "type": "number" },
+          "labor_rate": { "type": "number", "default": 350 },
+          "valid_days": { "type": "integer", "default": 30 }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "document_url": { "type": "string" },
+          "document_format": { "type": "string" },
+          "estimate_number": { "type": "string" },
+          "total_amount": { "type": "number" },
+          "save_location": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "generate_proposal",
+      "name": "Generate Proposal",
+      "description": "Creates comprehensive proposal with scope, timeline, pricing, and contract terms.",
+      "inputs": {
+        "type": "object",
+        "required": ["customer_name", "project_scope", "total_price"],
+        "properties": {
+          "customer_name": { "type": "string" },
+          "project_scope": { "type": "string" },
+          "timeline_weeks": { "type": "integer" },
+          "total_price": { "type": "number" },
+          "payment_terms": { "type": "string", "default": "Net 30" },
+          "include_warranty": { "type": "boolean", "default": true },
+          "include_maintenance": { "type": "boolean", "default": false }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "proposal_url": { "type": "string" },
+          "proposal_id": { "type": "string" },
+          "document_format": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "generate_service_report",
+      "name": "Generate Service Completion Report",
+      "description": "Creates formal service report documenting work performed, findings, parts replaced, and warranty info.",
+      "inputs": {
+        "type": "object",
+        "required": ["customer_name", "service_date", "work_performed"],
+        "properties": {
+          "customer_name": { "type": "string" },
+          "building_address": { "type": "string" },
+          "service_date": { "type": "string", "format": "date" },
+          "technician_name": { "type": "string" },
+          "work_performed": { "type": "string" },
+          "findings": { "type": "string" },
+          "parts_replaced": { "type": "array" },
+          "labor_hours": { "type": "number" },
+          "total_cost": { "type": "number" },
+          "warranty_period": { "type": "string" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "report_url": { "type": "string" },
+          "report_id": { "type": "string" },
+          "email_ready": { "type": "boolean" }
+        }
+      }
+    },
+    {
+      "id": "generate_warranty_letter",
+      "name": "Generate Warranty Letter",
+      "description": "Creates professional warranty documentation for customer.",
+      "inputs": {
+        "type": "object",
+        "required": ["customer_name", "equipment", "warranty_years"],
+        "properties": {
+          "customer_name": { "type": "string" },
+          "equipment": { "type": "string" },
+          "warranty_years": { "type": "integer" },
+          "coverage_type": { "type": "string", "enum": ["parts", "labor", "full"] },
+          "start_date": { "type": "string", "format": "date" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "document_url": { "type": "string" },
+          "warranty_id": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

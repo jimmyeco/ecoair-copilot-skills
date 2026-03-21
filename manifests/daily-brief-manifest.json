@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "Daily Brief Chief of Staff",
+  "description": "Executive daily briefing engine. Consolidates email, calendar, open loops, financials, and operations into single action-first brief. Surfaces risks, priorities, and decisions needed.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite", "Calendars.Read", "User.Read"]
+  },
+  "actions": [
+    {
+      "id": "generate_daily_brief",
+      "name": "Generate Daily Brief",
+      "description": "Creates comprehensive morning brief: today's priorities, urgent items, decisions needed, key meetings, revenue forecast, and risk flags.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "include_previous_day_recap": { "type": "boolean", "default": true },
+          "include_tomorrow_preview": { "type": "boolean", "default": true }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "generated_timestamp": { "type": "string" },
+          "executive_summary": {
+            "type": "object",
+            "properties": {
+              "top_3_priorities": { "type": "array" },
+              "decisions_needed_count": { "type": "integer" },
+              "risk_flags": { "type": "array" },
+              "opportunities": { "type": "array" }
+            }
+          },
+          "inbox_digest": {
+            "type": "object",
+            "properties": {
+              "unread_urgent": { "type": "integer" },
+              "key_stakeholders": { "type": "array" },
+              "action_items": { "type": "array" }
+            }
+          },
+          "calendar_digest": {
+            "type": "object",
+            "properties": {
+              "meetings_today": { "type": "integer" },
+              "key_meetings": { "type": "array" },
+              "free_blocks": { "type": "array" }
+            }
+          },
+          "operations_digest": {
+            "type": "object",
+            "properties": {
+              "dispatch_capacity": { "type": "string" },
+              "shop_status": { "type": "string" },
+              "revenue_track": { "type": "string" },
+              "customer_issues": { "type": "array" }
+            }
+          },
+          "finance_digest": {
+            "type": "object",
+            "properties": {
+              "yesterday_revenue": { "type": "number" },
+              "week_to_date_revenue": { "type": "number" },
+              "outstanding_receivables": { "type": "number" },
+              "variance_from_forecast": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "end_of_day_recap",
+      "name": "End of Day Recap",
+      "description": "Summarizes day: what was accomplished, open loops, items for tomorrow, lessons learned.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "notes": { "type": "string", "description": "Optional user notes about the day" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "accomplishments": { "type": "array" },
+          "open_loops": { "type": "array" },
+          "decisions_made": { "type": "array" },
+          "tomorrow_priorities": { "type": "array" },
+          "lessons_learned": { "type": "array" },
+          "metrics": {
+            "type": "object",
+            "properties": {
+              "revenue_today": { "type": "number" },
+              "jobs_completed": { "type": "integer" },
+              "issues_resolved": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

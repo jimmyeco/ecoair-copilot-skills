@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schemas.microsoft.com/copilot/copilot-extensions/v1/skill-manifest.json",
+  "name": "EcoAir Shop Parts Ops",
+  "description": "Shop repair lifecycle and parts inventory management. Tracks units from drop-off through diagnosis, parts ordering, repair, QC, and pickup. Manages parts approval workflow and reorder alerts.",
+  "version": "1.0.0",
+  "publisher": "EcoAir Inc.",
+  "schemaVersion": "1.0",
+  "auth": {
+    "type": "oauth2",
+    "scopes": ["Mail.ReadWrite", "Calendars.ReadWrite"]
+  },
+  "actions": [
+    {
+      "id": "get_shop_status",
+      "name": "Check Shop Repair Status",
+      "description": "Returns current units in shop, their status (received, diagnosing, awaiting parts, repairing, QC, ready for pickup), and how long they've been waiting.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "filter_by": {
+            "type": "string",
+            "enum": ["all", "overdue", "awaiting_parts", "ready_pickup"],
+            "description": "Filter repairs by status",
+            "default": "all"
+          }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "units_in_shop": { "type": "integer" },
+          "repairs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "unit_id": { "type": "string" },
+                "customer": { "type": "string" },
+                "status": { "type": "string" },
+                "days_waiting": { "type": "integer" },
+                "next_action": { "type": "string" }
+              }
+            }
+          },
+          "overdue_repairs": { "type": "integer" }
+        }
+      }
+    },
+    {
+      "id": "approve_parts",
+      "name": "Approve Parts Order",
+      "description": "Approves parts for ordering, triggers vendor order, tracks cost against repair estimate.",
+      "inputs": {
+        "type": "object",
+        "required": ["unit_id", "parts_list"],
+        "properties": {
+          "unit_id": { "type": "string" },
+          "parts_list": {
+            "type": "array",
+            "description": "List of part names and quantities"
+          },
+          "vendor": { "type": "string" },
+          "estimated_cost": { "type": "number" }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "approval_status": { "type": "string" },
+          "order_id": { "type": "string" },
+          "cost": { "type": "number" },
+          "estimated_delivery_days": { "type": "integer" }
+        }
+      }
+    },
+    {
+      "id": "check_inventory",
+      "name": "Check Parts Inventory",
+      "description": "Check stock levels for common PTAC/WSHP parts, identify reorder needs.",
+      "inputs": {
+        "type": "object",
+        "properties": {
+          "part_name": { "type": "string" },
+          "show_reorders": { "type": "boolean", "default": true }
+        }
+      },
+      "outputs": {
+        "type": "object",
+        "properties": {
+          "in_stock": { "type": "integer" },
+          "reorder_level": { "type": "integer" },
+          "status": { "type": "string" },
+          "parts_to_order": { "type": "array" }
+        }
+      }
+    }
+  ]
+}

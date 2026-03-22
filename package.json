@@ -1,0 +1,36 @@
+{
+    "name": "ecoair-copilot-skills",
+    "version": "1.0.0",
+    "description": "Microsoft Copilot skill manifests for EcoAir HVAC operations",
+    "private": true,
+    "scripts": {
+          "test": "jest --verbose",
+          "test:ci": "jest --ci --coverage --reporters=default",
+          "lint:manifests": "node scripts/validate-manifests.js",
+          "rollout:staging": "bash scripts/rollout_staging.sh",
+          "rollout:prod": "bash scripts/rollout_staging.sh --promote"
+    },
+    "devDependencies": {
+          "jest": "^29.7.0",
+          "ajv": "^8.12.0",
+          "ajv-formats": "^2.1.1"
+    },
+    "jest": {
+          "testEnvironment": "node",
+          "testMatch": [
+                  "**/tests/**/*.test.js"
+          ],
+          "collectCoverageFrom": [
+                  "lib/**/*.js",
+                  "scripts/validate-manifests.js"
+          ],
+          "coverageDirectory": "coverage",
+          "coverageReporters": [
+                  "text",
+                  "lcov"
+          ]
+    },
+    "engines": {
+          "node": ">=18.0.0"
+    }
+}

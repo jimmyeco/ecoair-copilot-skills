@@ -1,0 +1,69 @@
+name: "CI - Tests and Manifest Validation"
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate manifests
+        run: node scripts/validate-manifests.js --verbose
+
+      - name: Run unit tests
+        run: npm run test:ci
+
+      - name: Upload coverage report
+        if: matrix.node-version == 20
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  lint-json:
+    name: Validate JSON Syntax
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating all JSON manifest files..."
+          errors=0
+          for f in manifests/*-manifest.json; do
+            if ! python3 -m json.tool "$f" > /dev/null 2>&1; then
+              echo "FAIL: $f"
+              errors=$((errors + 1))
+            else
+              echo "OK:   $f"
+            fi
+          done
+          if [ "$errors" -gt 0 ]; then
+            echo "::error::$errors JSON file(s) have syntax errors"
+            exit 1
+          fi
+          echo "All JSON files are valid"
